@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aravi — Architecture Drawing Cleaner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+    input, button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+    }
+    button {
+      background: black;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    button:disabled {
+      background: gray;
+      cursor: not-allowed;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Aravi</h2>
+  <p>Upload your DWG / PDF / RVT plan to clean & finalize</p>
+
+  <input type="file" id="fileInput" />
+
+  <button id="uploadBtn">Upload & Process</button>
+
+  <div id="result" class="result"></div>
+</div>
+
+<script>
+  const uploadBtn = document.getElementById("uploadBtn");
+  const fileInput = document.getElementById("fileInput");
+  const resultBox = document.getElementById("result");
+
+  uploadBtn.onclick = async () => {
+    const file = fileInput.files[0];
+    if (!file) {
+      alert("Select a file first!");
+      return;
+    }
+
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = "Processing...";
+
+    const form = new FormData();
+    form.append("file", file);
+    form.append("target", "pdf");
+
+    try {
+      const res = await fetch("http://localhost:4000/api/upload", {
+        method: "POST",
+        body: form
+      });
+
+      const data = await res.json();
+
+      if (!data.success) throw new Error(data.error);
+
+      resultBox.innerHTML = `
+        ✅ File processed<br>
+        <a href="http://localhost:4000/files/${data.file.outputName}" target="_blank">
+          Download Final File
+        </a>
+      `;
+    } catch (err) {
+      resultBox.textContent = "❌ Error: " + err.message;
+    }
+
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = "Upload & Process";
+  };
+</script>
+
+</body>
+</html>
