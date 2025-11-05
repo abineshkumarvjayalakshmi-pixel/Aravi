@@ -1,59 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8"/>
-  <title>Aravi — Upload & Clean</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 30px; }
-    .card { max-width:800px; margin:auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,0.08); }
-    input[type=file]{display:block; margin:10px 0;}
-    .outputs a{display:block; margin:6px 0;}
-  </style>
+  <title>ARAVI — Smart Architecture Tool</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="card">
-    <h1>Aravi — Floorplan Cleaner (Prototype)</h1>
-    <p>Upload a scanned plan (PNG/JPG) or PDF page. The system will auto-detect walls, close gaps and return cleaned SVG/PDF.</p>
+<body class="bg-gray-100 font-sans">
 
-    <input type="file" id="fileInput" />
-    <button id="uploadBtn">Upload & Process</button>
+  <div class="h-screen flex flex-col items-center justify-center text-center px-4">
 
-    <div id="status"></div>
-    <div class="outputs" id="outputs"></div>
+    <img src="assets/logo.png" class="h-16 mb-4" alt="ARAVI">
+
+    <h1 class="text-4xl font-bold mb-3 text-gray-800">
+      Welcome to ARAVI
+    </h1>
+
+    <p class="text-lg text-gray-600 max-w-md mb-6">
+      Upload your floor plan. ARAVI will fix errors & complete missing drawings automatically.
+    </p>
+
+    <a href="upload.html"
+       class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg">
+      Upload Floor Plan
+    </a>
+
   </div>
 
-<script>
-const uploadBtn = document.getElementById('uploadBtn');
-const status = document.getElementById('status');
-const outputs = document.getElementById('outputs');
-
-uploadBtn.onclick = async () => {
-  const f = document.getElementById('fileInput').files[0];
-  if (!f) return alert('Select a file first');
-  const form = new FormData();
-  form.append('file', f);
-  status.innerText = 'Uploading and processing... (this can take 10-60s)';
-  outputs.innerHTML = '';
-  uploadBtn.disabled = true;
-
-  try {
-    const res = await fetch('http://localhost:4000/api/upload', { method:'POST', body: form });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error || 'Processing failed');
-    status.innerText = 'Processing complete — outputs:';
-    for (const [k,v] of Object.entries(json.outputs || {})) {
-      const a = document.createElement('a');
-      a.href = 'http://localhost:4000' + v;
-      a.target = '_blank';
-      a.innerText = `${k} → ${a.href}`;
-      outputs.appendChild(a);
-    }
-  } catch (e) {
-    status.innerText = 'Error: ' + e.message;
-  } finally {
-    uploadBtn.disabled = false;
-  }
-};
-</script>
 </body>
 </html>
